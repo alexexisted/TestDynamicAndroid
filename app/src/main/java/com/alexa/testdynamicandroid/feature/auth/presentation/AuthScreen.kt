@@ -1,4 +1,4 @@
-package com.alexa.testdynamicandroid.feature_auth.presentation
+package com.alexa.testdynamicandroid.feature.auth.presentation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -20,16 +20,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alexa.testdynamicandroid.R
-import com.alexa.testdynamicandroid.feature_auth.presentation.components.AuthButton
-import com.alexa.testdynamicandroid.feature_auth.presentation.components.AuthTextField
-import com.alexa.testdynamicandroid.feature_auth.presentation.components.OtpScreen
+import com.alexa.testdynamicandroid.feature.auth.presentation.components.AuthButton
+import com.alexa.testdynamicandroid.feature.auth.presentation.components.AuthTextField
+import com.alexa.testdynamicandroid.feature.auth.presentation.components.OtpScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthScreen(
-    viewModel: AuthViewModel = viewModel()
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     val email by viewModel.email.collectAsState()
     val isSendOtpLoading by viewModel.isSendOtpLoading.collectAsState()

@@ -1,6 +1,5 @@
-package com.alexa.testdynamicandroid.feature_auth.presentation.components
+package com.alexa.testdynamicandroid.feature.auth.presentation.components
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions

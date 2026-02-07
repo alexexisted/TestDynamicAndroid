@@ -1,4 +1,4 @@
-package com.alexa.testdynamicandroid.feature_auth.presentation
+package com.alexa.testdynamicandroid.feature.auth.presentation
 
 sealed interface AuthAction {
     data class OnEmailChanged(val email: String) : AuthAction

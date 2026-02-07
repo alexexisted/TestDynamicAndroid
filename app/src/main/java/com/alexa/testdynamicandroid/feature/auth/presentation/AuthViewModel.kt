@@ -1,9 +1,11 @@
-package com.alexa.testdynamicandroid.feature_auth.presentation
+package com.alexa.testdynamicandroid.feature.auth.presentation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dynamic.sdk.android.DynamicSDK
+import com.dynamic.sdk.android.Models.BaseWallet
+import com.dynamic.sdk.android.Models.UserProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -13,6 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor() : ViewModel() {
 
+    val sdk = DynamicSDK.getInstance()
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
 
@@ -31,8 +34,6 @@ class AuthViewModel @Inject constructor() : ViewModel() {
 
     private val _isVerifyOtpButtonEnabled = MutableStateFlow(false)
     val isVerifyOtpButtonEnabled: StateFlow<Boolean> = _isVerifyOtpButtonEnabled.asStateFlow()
-
-    val sdk = DynamicSDK.getInstance()
 
     fun onAction(action: AuthAction) {
         when (action) {
@@ -72,8 +73,8 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun validateEmail(email: String): Boolean {
-        val emailRegex = "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
-        return Pattern.compile(emailRegex).matcher(email).matches()
+        val emailRegex = """^([a-zA-Z0-9._\-+]+)@([a-zA-Z0-9._\-]+)\.([a-zA-Z]{2,})$""".toRegex()
+        return emailRegex.matches(email)
     }
 
     private fun onOtpCodeChanged(index: Int, code: String) {
@@ -96,7 +97,8 @@ class AuthViewModel @Inject constructor() : ViewModel() {
                     sdk.auth.email.verifyOTP(verificationToken)
                 } catch (
                     e: Exception
-                ) { }
+                ) {
+                }
             }
         } else {
             // Handle invalid OTP format (e.g., show an error message)

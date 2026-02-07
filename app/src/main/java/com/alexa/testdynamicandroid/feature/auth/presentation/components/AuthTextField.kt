@@ -1,4 +1,4 @@
-package com.alexa.testdynamicandroid.feature_auth.presentation.components
+package com.alexa.testdynamicandroid.feature.auth.presentation.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape

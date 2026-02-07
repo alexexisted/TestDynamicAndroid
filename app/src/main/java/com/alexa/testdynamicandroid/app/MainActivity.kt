@@ -7,11 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.alexa.testdynamicandroid.BuildConfig
-import com.alexa.testdynamicandroid.feature_auth.presentation.AuthScreen
 import com.alexa.testdynamicandroid.ui.theme.TestDynamicAndroidTheme
 import com.dynamic.sdk.android.DynamicSDK
 import com.dynamic.sdk.android.UI.DynamicUI
@@ -43,7 +41,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        AuthScreen()
+                        AppContent()
                         DynamicUI()
                     }
                 }
@@ -51,3 +49,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
