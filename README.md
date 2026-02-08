@@ -8,12 +8,15 @@ The application follows a feature-based architecture, where the code is organize
 
 The main architectural components are:
 
+*   **Package by Feature** Each feature located in feature/ directory and has it's own independent logic
+*   **CLEAN** Each feature has own data, domain and presentation ensuring a clear separation of concerns and maintainability.
 *   **Model-View-ViewModel (MVVM):** The UI is built using Jetpack Compose, and the state is managed by ViewModels.
 *   **Dependency Injection:** Hilt is used for dependency injection, which simplifies the management of dependencies and improves testability.
 *   **Single Activity:** The application uses a single-activity architecture, where different screens are implemented as composable functions.
 
 ## Features
 
+- ✅ **Pull-to-refresh on Wallet Details** The wallet details screen includes a pull-to-refresh mechanism to allow users to manually refresh their wallet information.
 - ✅ **Jetpack Compose UI:** The entire UI is built using modern, declarative Jetpack Compose.
 - ✅ **MVVM Architecture:** A clear separation of concerns between the UI and business logic.
 - ✅ **Kotlin Coroutines + StateFlow:** Asynchronous operations are handled efficiently using coroutines, with UI state exposed via `StateFlow`.
