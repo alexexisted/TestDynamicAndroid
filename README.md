@@ -48,8 +48,16 @@ To run the application, you will need to provide your Dynamic SDK environment ID
 5.  **Run the application** on an emulator or a physical device.
 
 ## Screenshots
+![photo_2026-02-08 17 58 09](https://github.com/user-attachments/assets/3827e393-4b2c-4faa-b268-323046265b78)
 
-*This section is a placeholder for screenshots of the application.*
+![photo_2026-02-08 17 58 14](https://github.com/user-attachments/assets/2884ea86-828e-4374-a00d-899ece4e82e2)
+
+![photo_2026-02-08 17 58 20](https://github.com/user-attachments/assets/39ba4dd7-6c25-49c1-933b-8c65fd958f30)
+
+![photo_2026-02-08 17 58 24](https://github.com/user-attachments/assets/7fb21e0f-ffdb-4296-b0b0-ffe9f006fa9a)
+
+![photo_2026-02-08 17 58 26](https://github.com/user-attachments/assets/0bcbe21f-e2b5-477e-93d1-6527b055012d)
+
 
 ## Assumptions
 
