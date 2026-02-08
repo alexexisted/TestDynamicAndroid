@@ -1,6 +1,6 @@
 # TestDynamicAndroid
 
-This project is an Android application that demonstrates user authentication using email and OTP verification, powered by the Dynamic SDK.
+This project is an Android application that demonstrates basic usage of Dynamic Crypto SDK.
 
 ## Architecture
 
