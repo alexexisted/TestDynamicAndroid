@@ -14,10 +14,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.alexa.testdynamicandroid.core.ui.ErrorMessage
 
 @Composable
 fun OtpScreen(
     email: String,
+    errorMsg: String,
     otpCode: List<String>,
     isVerifyButtonEnabled: Boolean,
     onVerifyCodeClicked: () -> Unit,
@@ -45,8 +47,13 @@ fun OtpScreen(
                 modifier = Modifier.padding(20.dp)
             )
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        if (errorMsg.isNotBlank()) {
+            ErrorMessage(
+                errorMessage = errorMsg,
+                modifier = Modifier
+            )
+        }
+        Spacer(modifier = Modifier.height(14.dp))
 
         Text(
             text = "Check your email",
@@ -130,6 +137,7 @@ fun OtpScreen(
 fun OtpPr() {
     OtpScreen(
         email = "test",
+        errorMsg = "Invalid OTP code. Please enter the 6-digit code sent to your email.",
         otpCode = mutableListOf("", "", "","","", ""),
         isVerifyButtonEnabled = false,
         onCodeChange = { _, _ -> },

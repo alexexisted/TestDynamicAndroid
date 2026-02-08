@@ -3,19 +3,18 @@ package com.alexa.testdynamicandroid.feature.auth.presentation
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dynamic.sdk.android.DynamicSDK
-import com.dynamic.sdk.android.Models.BaseWallet
-import com.dynamic.sdk.android.Models.UserProfile
+import com.alexa.testdynamicandroid.core.ui.toUIError
+import com.alexa.testdynamicandroid.feature.auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel @Inject constructor() : ViewModel() {
+class AuthViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
-    val sdk = DynamicSDK.getInstance()
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
 
@@ -35,13 +34,17 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     private val _isVerifyOtpButtonEnabled = MutableStateFlow(false)
     val isVerifyOtpButtonEnabled: StateFlow<Boolean> = _isVerifyOtpButtonEnabled.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow("")
+    val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
+
     fun onAction(action: AuthAction) {
         when (action) {
             is AuthAction.OnEmailChanged -> onEmailChanged(action.email)
             AuthAction.OnSendOtpClicked -> sendEmail()
-            is AuthAction.OnOtpCodeChanged -> onOtpCodeChanged(action.index, action.code)
-            AuthAction.OnResendCodeClicked -> sendEmail()
+            is AuthAction.OnOtpCodeChanged -> onOtpCodeChanged(index = action.index, code = action.code)
+            AuthAction.OnResendCodeClicked -> resendEmail()
             AuthAction.OnVerifyCodeClicked -> verifyOtp()
+            AuthAction.OnDismissOtpBS -> changeBSVisibility()
         }
     }
 
@@ -56,19 +59,25 @@ class AuthViewModel @Inject constructor() : ViewModel() {
         sendEmail()
     }
 
+    private fun changeBSVisibility() {
+        _isOtpBsVisible.value = !_isOtpBsVisible.value
+    }
+
     private fun sendEmail() {
-        if (isSendOtpButtonEnabled.value) {
-            viewModelScope.launch {
-                _isSendOtpLoading.value = true
-                try {
-                    sdk.auth.email.sendOTP(email.value)
-                    _isOtpBsVisible.value = true
-                } catch (e: Exception) {
-                    // Handle error appropriately
-                } finally {
-                    _isSendOtpLoading.value = false
-                }
+        _errorMessage.value = ""
+        if (!isSendOtpButtonEnabled.value) return
+
+        viewModelScope.launch {
+            _isSendOtpLoading.value = true
+            val result = authRepository.sendOtp(email.value)
+
+            result.onSuccess {
+                _isOtpBsVisible.value = true
+            }.onFailure { exception ->
+                _errorMessage.value = (exception.message ?: "").toUIError()
             }
+
+            _isSendOtpLoading.value = false
         }
     }
 
@@ -89,19 +98,19 @@ class AuthViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun verifyOtp() {
+        _errorMessage.value = ""
         val verificationToken = otpCode.joinToString(separator = "")
 
         if (verificationToken.length == 6 && verificationToken.all { it.isDigit() }) {
             viewModelScope.launch {
-                try {
-                    sdk.auth.email.verifyOTP(verificationToken)
-                } catch (
-                    e: Exception
-                ) {
-                }
+                val result = authRepository.verifyOtp(verificationToken)
+                result
+                    .onFailure { exception ->
+                        _errorMessage.value = (exception.message ?: "").toUIError()
+                    }
             }
         } else {
-            // Handle invalid OTP format (e.g., show an error message)
+            _errorMessage.value = "Invalid OTP code. Please enter the 6-digit code sent to your email."
         }
 
     }

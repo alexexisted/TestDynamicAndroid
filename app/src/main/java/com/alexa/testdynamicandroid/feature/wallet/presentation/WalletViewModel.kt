@@ -2,23 +2,18 @@ package com.alexa.testdynamicandroid.feature.wallet.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dynamic.sdk.android.DynamicSDK
+import com.alexa.testdynamicandroid.core.ui.toUIError
+import com.alexa.testdynamicandroid.feature.wallet.domain.repository.WalletRepository
 import com.dynamic.sdk.android.Models.Network
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.intOrNull
 import javax.inject.Inject
 
 @HiltViewModel
-class WalletViewModel @Inject constructor() : ViewModel() {
-    private val sdk = DynamicSDK.getInstance()
+class WalletViewModel @Inject constructor(
+    private val repository: WalletRepository
+) : ViewModel() {
 
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
@@ -26,8 +21,8 @@ class WalletViewModel @Inject constructor() : ViewModel() {
     private val _address = MutableStateFlow("")
     val address: StateFlow<String> = _address.asStateFlow()
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    private val _errorMessage = MutableStateFlow<String>("")
+    val errorMessage: StateFlow<String> = _errorMessage.asStateFlow()
 
     private val _network = MutableStateFlow<Network?>(null)
     val network: StateFlow<Network?> = _network.asStateFlow()
@@ -38,7 +33,7 @@ class WalletViewModel @Inject constructor() : ViewModel() {
     private val _balance = MutableStateFlow("")
     val balance: StateFlow<String> = _balance.asStateFlow()
 
-    private val _wallet = MutableStateFlow<String>("")
+    private val _wallet = MutableStateFlow("")
     val wallet: StateFlow<String> = _wallet.asStateFlow()
 
     private val _chain = MutableStateFlow("")
@@ -55,9 +50,7 @@ class WalletViewModel @Inject constructor() : ViewModel() {
         when (action) {
             is WalletAction.LoadWallet -> loadWallet()
             WalletAction.OnCopyAddressClicked -> copyAddress()
-            WalletAction.OnSendTransactionClicked -> sendTransaction()
             WalletAction.OnLogoutClicked -> logout()
-            WalletAction.OnNavigateBackClicked -> navigateBack()
             WalletAction.OnRefreshDataPulled -> refreshData()
         }
     }
@@ -69,84 +62,66 @@ class WalletViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun loadBalance() {
+        _errorMessage.value = ""
         viewModelScope.launch {
-            try {
-                val wallet = sdk.wallets.userWallets.firstOrNull() { it.chain == "EVM" }
-                if (wallet == null) {
-                    return@launch
-                } else {
-                    val solBalance = sdk.wallets.getBalance(wallet)
-                    _balance.value = "$solBalance ETH"
+            repository.getEvmBalance()
+                .onSuccess { balance ->
+                    _balance.value = balance
                 }
-
-            } catch (e: Exception) {
-                _errorMessage.value = "Failed to load balance: ${e.message}"
-            }
+                .onFailure { e ->
+                    _errorMessage.value = e.message.toUIError()
+                }
         }
     }
-//GenericNetwork(blockExplorerUrls=[https://sepolia.etherscan.io, https://sepolia.otterscan.io], chainId=11155111,
-// chainName=null, iconUrls=[https://app.dynamic.xyz/assets/networks/sepolia.svg], lcdUrl=null, name=Sepolia, nameService=null,
-// nativeCurrency=NativeCurrency(decimals=18, name=Sepolia Ether, symbol=ETH), networkId=11155111, privateCustomerRpcUrls=null,
-// rpcUrls=[https://gateway.tenderly.co/public/sepolia], vanityName=Sepolia)
+
     private fun loadSepoliaNetwork() {
+        _errorMessage.value = ""
         viewModelScope.launch {
-            try {
-                val wallet = sdk.wallets.userWallets.first { it.chain == "EVM" }
-//                val networkEVM = sdk.networks.evm[1] //getting Sepolia network
-                val polygonNetwork = Network(JsonPrimitive(11155111))
-                sdk.wallets.switchNetwork(wallet, polygonNetwork)
-                val networkResult = sdk.wallets.getNetwork(wallet)
-                _network2.value = networkResult.value.toString()
-            } catch (e: Exception) {
-                _errorMessage.value = "Failed to load Sepolia network: ${e.message}"
-            }
+            repository.switchAndGetEvmNetwork(11155111)
+                .onSuccess { network ->
+                    _network2.value = network
+                }
+                .onFailure { e ->
+                    _errorMessage.value = e.message.toUIError()
+                }
         }
     }
 
     private fun loadWallet() {
+        _errorMessage.value = ""
         viewModelScope.launch {
-            try {
-                val wallet = sdk.wallets.userWallets.firstOrNull() { it.chain == "EVM" }
-                if (wallet == null) {
-                    return@launch
-                } else {
-                    _wallet.value = wallet.address
-                    _address.value = wallet.address
-                    _chain.value = wallet.chain
+            repository.getEvmWalletInfo()
+                .onSuccess { info ->
+                    if (info == null) return@onSuccess
+                    _wallet.value = info.address
+                    _address.value = info.address
+                    _chain.value = info.chain
                     loadSepoliaNetwork()
                     loadBalance()
                 }
-
-            } catch (e: Exception) {
-                _errorMessage.value = "Failed to load wallet: ${e.message}"
-            }
+                .onFailure { e ->
+                    _errorMessage.value = e.message.toUIError()
+                }
         }
     }
 
-    private fun sendTransaction() {
-        TODO("Not yet implemented")
-    }
 
     fun logout() {
+        _errorMessage.value = ""
         viewModelScope.launch {
-            try {
-                sdk.auth.logout()
-            } catch (e: Exception) {
-                _errorMessage.value = "Logout failed: ${e.message}"
+            repository.logout().onFailure { e ->
+                _errorMessage.value = e.message.toUIError()
             }
         }
-    }
-
-    private fun navigateBack() {
-        TODO("Not yet implemented")
     }
 
     private fun refreshData() {
+        _errorMessage.value = ""
         _isRefreshing.value = true
         try {
             loadWallet()
         } catch (e: Exception) {
-            _errorMessage.value = "Failed to refresh data: ${e.message}"
+            _errorMessage.value = e.message.toUIError()
         } finally {
             _isRefreshing.value = false
         }

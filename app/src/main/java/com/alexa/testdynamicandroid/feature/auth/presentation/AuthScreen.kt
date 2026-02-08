@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alexa.testdynamicandroid.R
+import com.alexa.testdynamicandroid.core.ui.ErrorMessage
 import com.alexa.testdynamicandroid.feature.auth.presentation.components.AuthButton
 import com.alexa.testdynamicandroid.feature.auth.presentation.components.AuthTextField
 import com.alexa.testdynamicandroid.feature.auth.presentation.components.OtpScreen
@@ -38,6 +39,7 @@ fun AuthScreen(
     val isOtpBsVisible by viewModel.isOtpBSVisible.collectAsState()
     val otpCode = viewModel.otpCode //because we use mutableStateListOf we can directly access it without collectAsState
     val isVerifyOtpButtonEnabled by viewModel.isVerifyOtpButtonEnabled.collectAsState()
+    val errorMsg by viewModel.errorMessage.collectAsState()
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -92,11 +94,19 @@ fun AuthScreen(
             enabled = isSendOtpButtonEnabled,
             isLoading = isSendOtpLoading
         )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        if (errorMsg.isNotBlank()) {
+            ErrorMessage(
+                errorMessage = errorMsg,
+                modifier = Modifier
+            )
+        }
     }
 
     if (isOtpBsVisible) {
         ModalBottomSheet(
-            onDismissRequest = { /* Handle dismiss logic here */ },
+            onDismissRequest = { viewModel.onAction(AuthAction.OnDismissOtpBS) },
             modifier = Modifier,
             sheetState = sheetState,
             sheetGesturesEnabled = true,
@@ -111,6 +121,7 @@ fun AuthScreen(
             ) {
                 OtpScreen(
                     email = email,
+                    errorMsg = errorMsg,
                     otpCode = otpCode,
                     isVerifyButtonEnabled = isVerifyOtpButtonEnabled,
                     onVerifyCodeClicked = {viewModel.onAction(AuthAction.OnVerifyCodeClicked)},

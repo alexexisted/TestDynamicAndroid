@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.alexa.testdynamicandroid.BuildConfig
+import com.alexa.testdynamicandroid.core.navigation.MainNavGraph
 import com.alexa.testdynamicandroid.ui.theme.TestDynamicAndroidTheme
 import com.dynamic.sdk.android.DynamicSDK
 import com.dynamic.sdk.android.UI.DynamicUI
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        AppContent()
+                        MainNavGraph()
                         DynamicUI()
                     }
                 }

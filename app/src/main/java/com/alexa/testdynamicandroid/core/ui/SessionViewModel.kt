@@ -1,4 +1,4 @@
-package com.alexa.testdynamicandroid.app
+package com.alexa.testdynamicandroid.core.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -48,7 +47,7 @@ class SessionViewModel @Inject constructor() : ViewModel() {
     private fun setupObservers() {
         // Observe authentication state
         viewModelScope.launch {
-            sdk.auth.authenticatedUserChanges.debounce(90L).collect { user ->
+            sdk.auth.authenticatedUserChanges.collect { user ->
                 _isAuthenticated.value = user != null
                 _user.value = user
 

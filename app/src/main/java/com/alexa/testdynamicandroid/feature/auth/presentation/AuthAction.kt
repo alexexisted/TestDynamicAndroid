@@ -7,4 +7,6 @@ sealed interface AuthAction {
     data class OnOtpCodeChanged(val index: Int, val code: String) : AuthAction
     data object OnVerifyCodeClicked : AuthAction
     data object OnResendCodeClicked : AuthAction
+
+    data object OnDismissOtpBS : AuthAction
 }

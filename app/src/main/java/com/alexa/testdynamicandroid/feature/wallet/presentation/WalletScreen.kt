@@ -1,6 +1,5 @@
 package com.alexa.testdynamicandroid.feature.wallet.presentation
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,19 +12,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.alexa.testdynamicandroid.R
+import com.alexa.testdynamicandroid.core.ui.ErrorMessage
 import com.alexa.testdynamicandroid.feature.wallet.presentation.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletScreen(
-    viewModel: WalletViewModel = hiltViewModel()
+    viewModel: WalletViewModel = hiltViewModel(),
+    onNavigateToTransaction: () -> Unit = {}
 ) {
 
     val walletAddress by viewModel.address.collectAsState()
@@ -33,7 +33,7 @@ fun WalletScreen(
     val walletBalance by viewModel.balance.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val chainName by viewModel.chain.collectAsState()
-    val error by viewModel.errorMessage.collectAsState()
+    val errorMsg by viewModel.errorMessage.collectAsState()
     val clipboardManager = LocalClipboardManager.current
 
     LaunchedEffect(Unit) {
@@ -116,7 +116,7 @@ fun WalletScreen(
                 )
 
                 //transaction
-                SendTransactionButton(onClick = { /* No-op */ })
+                SendTransactionButton(onClick = onNavigateToTransaction)
 
                 //logout
                 ThemeActionButton(
@@ -127,6 +127,13 @@ fun WalletScreen(
                     onClick = { viewModel.onAction(WalletAction.OnLogoutClicked) },
                     showArrow = true
                 )
+
+                if (errorMsg.isNotBlank()) {
+                    ErrorMessage(
+                        errorMessage = errorMsg,
+                        modifier = Modifier
+                    )
+                }
             }
         }
     }
